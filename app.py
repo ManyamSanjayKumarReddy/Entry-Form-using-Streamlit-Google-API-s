@@ -3,50 +3,53 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
 # Display Title and Description
-st.title("Vendor Management Portal")
-st.markdown("Enter the details of the new vendor below.")
+st.title("Random Data Collector Portal")
+st.markdown("Note : This is an Sample Data Collector for Traffic Load Checking ")
+st.markdown("Enter the details in the below given Fields : ")
 
 # Establishing a Google Sheets connection
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Fetch existing vendors data
-existing_data = conn.read(worksheet="Vendors", usecols=list(range(6)), ttl=5)
+existing_data = conn.read(worksheet="RandomData", usecols=list(range(6)), ttl=5)
 existing_data = existing_data.dropna(how="all")
 
 # List of Business Types and Products
-BUSINESS_TYPES = [
-    "Manufacturer",
-    "Distributor",
-    "Wholesaler",
-    "Retailer",
-    "Service Provider",
+YearofStudy = [
+    1,
+    2,
+    3,
+    4
+ 
 ]
-PRODUCTS = [
-    "Electronics",
-    "Apparel",
-    "Groceries",
-    "Software",
-    "Other",
+Skills = [
+    "Python",
+    "Machine Learning",
+    "Excel",
+    "C",
+    "Cloud",
+    "Java",
+    "IOT"
 ]
 
 # Onboarding New Vendor Form
-with st.form(key="vendor_form"):
-    company_name = st.text_input(label="Company Name*")
-    business_type = st.selectbox("Business Type*", options=BUSINESS_TYPES, index=None)
-    products = st.multiselect("Products Offered", options=PRODUCTS)
-    years_in_business = st.slider("Years in Business", 0, 50, 5)
-    onboarding_date = st.date_input(label="Onboarding Date")
-    additional_info = st.text_area(label="Additional Notes")
+with st.form(key="student_form"):
+    student_name = st.text_input(label="Student Name*")
+    year_of_study = st.selectbox("Year of Study*", options=YearofStudy, index=None)
+    skills = st.multiselect("Skill Set", options=Skills)
+    projects_count = st.slider("Projects Done Count", 0, 50, 5)
+    date_of_submission = st.date_input(label="Date of Submission")
+    remarks = st.text_area(label="Additional Notes")
 
     # Mark mandatory fields
     st.markdown("**required*")
 
-    submit_button = st.form_submit_button(label="Submit Vendor Details")
+    submit_button = st.form_submit_button(label="Submit Student Details")
 
     # If the submit button is pressed
     if submit_button:
         # Check if all mandatory fields are filled
-        if not company_name or not business_type:
+        if not year_of_study or not skills:
             st.warning("Ensure all mandatory fields are filled.")
             st.stop()
         # elif existing_data["CompanyName"].str.contains(company_name).any():
@@ -54,23 +57,23 @@ with st.form(key="vendor_form"):
         #     st.stop()
         else:
             # Create a new row of vendor data
-            vendor_data = pd.DataFrame(
+            student_data = pd.DataFrame(
                 [
                     {
-                        "CompanyName": company_name,
-                        "BusinessType": business_type,
-                        "Products": ", ".join(products),
-                        "YearsInBusiness": years_in_business,
-                        "OnboardingDate": onboarding_date.strftime("%Y-%m-%d"),
-                        "AdditionalInfo": additional_info,
+                        "Name": student_name,
+                        "YearofStudy": year_of_study,
+                        "Skills": ", ".join(skills),
+                        "ProjectCount": projects_count,
+                        "DOS": date_of_submission.strftime("%d-%m-%y"),
+                        "Remarks": remarks,
                     }
                 ]
             )
 
             # Add the new vendor data to the existing data
-            updated_df = pd.concat([existing_data, vendor_data], ignore_index=True)
+            updated_df = pd.concat([existing_data, student_data], ignore_index=True)
 
             # Update Google Sheets with the new vendor data
-            conn.update(worksheet="Vendors", data=updated_df)
+            conn.update(worksheet="RandomData", data=updated_df)
 
-            st.success("Vendor details successfully submitted!")
+            st.success("Student details successfully submitted!")
